@@ -7,11 +7,9 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.event.Level;
 import org.spring.bsdev.starter.log_starter.props.LoggingProperties;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Aspect
-@Component
 @RequiredArgsConstructor
 public class LoggingAspect {
 
@@ -19,7 +17,7 @@ public class LoggingAspect {
 
     @Before("@annotation(org.spring.bsdev.starter.log_starter.aspect.annotation.BeforeLog)")
     public void beforeAdvice(JoinPoint joinPoint) {
-        logAtLevel(Level.valueOf(props.getLevel().toString()), "Был вызван метод: {}", joinPoint.getSignature().getName());
+        logAtLevel(props.getLevel(), "Был вызван метод: {}", joinPoint.getSignature().getName());
     }
 
     @AfterReturning(
@@ -27,7 +25,7 @@ public class LoggingAspect {
             returning = "result"
     )
     public void afterReturningAdvice(JoinPoint joinPoint, Object result) {
-        logAtLevel(Level.valueOf(props.getLevel().toString()), "Был вызван метод {}, с результатом работы: {}", joinPoint.getSignature().getName(), result);
+        logAtLevel(props.getLevel(), "Был вызван метод {}, с результатом работы: {}", joinPoint.getSignature().getName(), result);
     }
 
     @AfterThrowing(
@@ -35,7 +33,7 @@ public class LoggingAspect {
             throwing = "exception"
     )
     public void afterThrowingAdvice(JoinPoint joinPoint, Throwable exception) {
-        logAtLevel(Level.valueOf(props.getLevel().toString()), "Произошло исключение {} в методе: {}", exception.getClass(), joinPoint.getSignature().getName());
+        logAtLevel(props.getLevel(), "Произошло исключение {} в методе: {}", exception.getClass(), joinPoint.getSignature().getName());
     }
 
     @Around("@annotation(org.spring.bsdev.starter.log_starter.aspect.annotation.AroundLog)")
@@ -43,7 +41,7 @@ public class LoggingAspect {
         long start = System.currentTimeMillis();
         Object result = proceedingJoinPoint.proceed();
         long end = System.currentTimeMillis();
-        logAtLevel(Level.valueOf(props.getLevel().toString()), "Время выполнения: {}", end - start + " миллисекунд(ы)");
+        logAtLevel(props.getLevel(), "Время выполнения: {}", end - start + " миллисекунд(ы)");
         return result;
     }
 
@@ -54,6 +52,7 @@ public class LoggingAspect {
             case INFO  -> log.info(fmt, args);
             case DEBUG -> log.debug(fmt, args);
             case TRACE -> log.trace(fmt, args);
+            default   -> log.info(fmt, args);
         }
     }
 }
